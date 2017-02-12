@@ -63,40 +63,44 @@ $ns node-config -adhocRouting  $val(rp) \
 #Create 5 nodes
 set n0 [$ns node]
 $n0 set X_ 700
-$n0 set Y_ 400
+$n0 set Y_ 450
 $n0 set Z_ 0.0
 $ns initial_node_pos $n0 20
 set n1 [$ns node]
-$n1 set X_ 537
-$n1 set Y_ 573
+$n1 set X_ 500
+$n1 set Y_ 600
 $n1 set Z_ 0.0
 $ns initial_node_pos $n1 20
 set n2 [$ns node]
-$n2 set X_ 509
-$n2 set Y_ 257
+$n2 set X_ 500
+$n2 set Y_ 300
 $n2 set Z_ 0.0
 $ns initial_node_pos $n2 20
 set n3 [$ns node]
-$n3 set X_ 887
-$n3 set Y_ 256
+$n3 set X_ 900
+$n3 set Y_ 300
 $n3 set Z_ 0.0
 $ns initial_node_pos $n3 20
 set n4 [$ns node]
-$n4 set X_ 872
-$n4 set Y_ 575
+$n4 set X_ 900
+$n4 set Y_ 600
 $n4 set Z_ 0.0
 $ns initial_node_pos $n4 20
 
 #===================================
 #        Agents Definition        
 #===================================
+proc getRandomPacketSize {} {
+    return [expr {500 + int(rand() * 4500)}]
+}
+
 #Setup a TCP connection
 set tcp0 [new Agent/TCP]
 $ns attach-agent $n1 $tcp0
 set sink2 [new Agent/TCPSink]
 $ns attach-agent $n2 $sink2
 $ns connect $tcp0 $sink2
-$tcp0 set packetSize_ 1500
+$tcp0 set packetSize_ [getRandomPacketSize]
 
 #Setup a TCP connection
 set tcp1 [new Agent/TCP]
@@ -104,7 +108,7 @@ $ns attach-agent $n3 $tcp1
 set sink3 [new Agent/TCPSink]
 $ns attach-agent $n4 $sink3
 $ns connect $tcp1 $sink3
-$tcp1 set packetSize_ 3000
+$tcp1 set packetSize_ [getRandomPacketSize]
 
 
 #===================================
@@ -114,6 +118,15 @@ $tcp1 set packetSize_ 3000
 set ftp0 [new Application/FTP]
 $ftp0 attach-agent $tcp0
 $ns at 0.5 "$ftp0 start"
+set size [getRandomPacketSize]
+puts $size
+$ns at 1.0 "$tcp0 set packetSize_ $size"
+set size [getRandomPacketSize]
+puts $size
+$ns at 2.0 "$tcp0 set packetSize_ $size"
+set size [getRandomPacketSize]
+puts $size
+$ns at 3.0 "$tcp0 set packetSize_ $size"
 $ns at 8.0 "$ftp0 stop"
 
 #Setup a FTP Application over TCP connection
