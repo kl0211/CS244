@@ -12,10 +12,10 @@ set val(ifq)    Queue/DropTail/PriQueue    ;# interface queue type
 set val(ll)     LL                         ;# link layer type
 set val(ant)    Antenna/OmniAntenna        ;# antenna model
 set val(ifqlen) 50                         ;# max packet in ifq
-set val(nn)     3                          ;# number of mobilenodes
-set val(rp)     DSDV                       ;# routing protocol
-set val(x)      894                      ;# X dimension of topography
-set val(y)      565                      ;# Y dimension of topography
+set val(nn)     5                          ;# number of mobilenodes
+set val(rp)     AODV                       ;# routing protocol
+set val(x)      987                      ;# X dimension of topography
+set val(y)      675                      ;# Y dimension of topography
 set val(stop)   10.0                         ;# time of simulation end
 
 #===================================
@@ -60,54 +60,67 @@ $ns node-config -adhocRouting  $val(rp) \
 #===================================
 #        Nodes Definition        
 #===================================
-#Create 3 nodes
+#Create 5 nodes
 set n0 [$ns node]
-$n0 set X_ 550
-$n0 set Y_ 464
+$n0 set X_ 700
+$n0 set Y_ 400
 $n0 set Z_ 0.0
 $ns initial_node_pos $n0 20
 set n1 [$ns node]
-$n1 set X_ 794
-$n1 set Y_ 465
+$n1 set X_ 537
+$n1 set Y_ 573
 $n1 set Z_ 0.0
 $ns initial_node_pos $n1 20
 set n2 [$ns node]
-$n2 set X_ 673
-$n2 set Y_ 261
+$n2 set X_ 509
+$n2 set Y_ 257
 $n2 set Z_ 0.0
 $ns initial_node_pos $n2 20
+set n3 [$ns node]
+$n3 set X_ 887
+$n3 set Y_ 256
+$n3 set Z_ 0.0
+$ns initial_node_pos $n3 20
+set n4 [$ns node]
+$n4 set X_ 872
+$n4 set Y_ 575
+$n4 set Z_ 0.0
+$ns initial_node_pos $n4 20
 
 #===================================
 #        Agents Definition        
 #===================================
+#Setup a TCP connection
+set tcp0 [new Agent/TCP]
+$ns attach-agent $n1 $tcp0
+set sink2 [new Agent/TCPSink]
+$ns attach-agent $n2 $sink2
+$ns connect $tcp0 $sink2
+$tcp0 set packetSize_ 1500
+
+#Setup a TCP connection
+set tcp1 [new Agent/TCP]
+$ns attach-agent $n3 $tcp1
+set sink3 [new Agent/TCPSink]
+$ns attach-agent $n4 $sink3
+$ns connect $tcp1 $sink3
+$tcp1 set packetSize_ 3000
+
 
 #===================================
 #        Applications Definition        
 #===================================
+#Setup a FTP Application over TCP connection
+set ftp0 [new Application/FTP]
+$ftp0 attach-agent $tcp0
+$ns at 0.5 "$ftp0 start"
+$ns at 8.0 "$ftp0 stop"
 
-#Create a duplex link between the nodes
-#$ns duplex-link $n0 $n1 1Mb 10ms DropTail
-
-#Create a UDP agent and attach it to node n0
-set udp0 [new Agent/UDP]
-$ns attach-agent $n0 $udp0
-
-# Create a CBR traffic source and attach it to udp0
-set cbr0 [new Application/Traffic/CBR]
-$cbr0 set packetSize_ 500
-$cbr0 set interval_ 0.005
-$cbr0 attach-agent $udp0
-
-#Create a Null agent (a traffic sink) and attach it to node n1
-set null0 [new Agent/Null]
-$ns attach-agent $n1 $null0
-
-#Connect the traffic source with the traffic sink
-$ns connect $udp0 $null0  
-
-#Schedule events for the CBR agent
-$ns at 0.5 "$cbr0 start"
-$ns at 4.5 "$cbr0 stop"
+#Setup a FTP Application over TCP connection
+set ftp1 [new Application/FTP]
+$ftp1 attach-agent $tcp1
+$ns at 2.0 "$ftp1 start"
+$ns at 9.5 "$ftp1 stop"
 
 
 #===================================
