@@ -16,7 +16,7 @@ set val(nn)     5                          ;# number of mobilenodes
 set val(rp)     AODV                       ;# routing protocol
 set val(x)      987                      ;# X dimension of topography
 set val(y)      675                      ;# Y dimension of topography
-set val(stop)   10.0                         ;# time of simulation end
+set val(stop)   11.0                         ;# time of simulation end
 
 #===================================
 #        Initialization        
@@ -38,6 +38,10 @@ set namfile [open out.nam w]
 $ns namtrace-all $namfile
 $ns namtrace-all-wireless $namfile $val(x) $val(y)
 set chan [new $val(chan)];#Create wireless channel
+
+#Record Data for Xgraph
+set f0 [open graph0.tr w]
+set f1 [open graph1.tr w]
 
 #===================================
 #     Mobile node parameter setup
@@ -61,24 +65,24 @@ $ns node-config -adhocRouting  $val(rp) \
 #        Nodes Definition        
 #===================================
 #Create 5 nodes
-set n0 [$ns node]
-$n0 set X_ 700
-$n0 set Y_ 450
-$n0 set Z_ 0.0
-$ns initial_node_pos $n0 20
+# set n0 [$ns node]
+# $n0 set X_ 700
+# $n0 set Y_ 450
+# $n0 set Z_ 0.0
+# $ns initial_node_pos $n0 20
 set n1 [$ns node]
-$n1 set X_ 500
+$n1 set X_ 300
 $n1 set Y_ 600
 $n1 set Z_ 0.0
 $ns initial_node_pos $n1 20
 set n2 [$ns node]
-$n2 set X_ 500
-$n2 set Y_ 300
+$n2 set X_ 300
+$n2 set Y_ 400
 $n2 set Z_ 0.0
 $ns initial_node_pos $n2 20
 set n3 [$ns node]
 $n3 set X_ 900
-$n3 set Y_ 300
+$n3 set Y_ 400
 $n3 set Z_ 0.0
 $ns initial_node_pos $n3 20
 set n4 [$ns node]
@@ -94,6 +98,10 @@ proc getRandomPacketSize {} {
     return [expr {500 + int(rand() * 4500)}]
 }
 
+proc getRandomPacketInterval {} {
+    return [expr {0.005 + int(rand() * 0.5)}]
+}
+
 #Setup a TCP connection
 set tcp0 [new Agent/TCP]
 $ns attach-agent $n1 $tcp0
@@ -101,6 +109,7 @@ set sink2 [new Agent/TCPSink]
 $ns attach-agent $n2 $sink2
 $ns connect $tcp0 $sink2
 $tcp0 set packetSize_ [getRandomPacketSize]
+$tcp0 set interval_ [getRandomPacketInterval]
 
 #Setup a TCP connection
 set tcp1 [new Agent/TCP]
@@ -108,7 +117,7 @@ $ns attach-agent $n3 $tcp1
 set sink3 [new Agent/TCPSink]
 $ns attach-agent $n4 $sink3
 $ns connect $tcp1 $sink3
-$tcp1 set packetSize_ [getRandomPacketSize]
+$tcp1 set packetSize_ 1500
 
 
 #===================================
@@ -133,24 +142,41 @@ $ns at 8.0 "$ftp0 stop"
 set ftp1 [new Application/FTP]
 $ftp1 attach-agent $tcp1
 $ns at 2.0 "$ftp1 start"
-$ns at 9.5 "$ftp1 stop"
+$ns at 9.0 "$ftp1 stop"
 
 
 #===================================
 #        Termination        
 #===================================
+proc record {} {
+    global sink2 sink3 f0 f1
+    set ns [Simulator instance]
+    set time 0.5
+    set bw0 [$sink2 set bytes_]
+    set bw1 [$sink3 set bytes_]
+    set now [$ns now]
+    puts $f0 "$now [expr $bw0/$time*8/1000000]"
+    puts $f1 "$now [expr $bw1/$time*8/1000000]"
+    $sink2 set bytes_ 0
+    $sink3 set bytes_ 0
+    $ns at [expr $now+$time] "record"
+}
+
 #Define a 'finish' procedure
 proc finish {} {
-    global ns tracefile namfile
+    global ns tracefile namfile f0 f1
     $ns flush-trace
     close $tracefile
     close $namfile
+    close $f0
+    close $f1
     exec nam out.nam &
     exit 0
 }
-for {set i 0} {$i < $val(nn) } { incr i } {
+for {set i 1} {$i < $val(nn) } { incr i } {
     $ns at $val(stop) "\$n$i reset"
 }
+$ns at 0.0 "record"
 $ns at $val(stop) "$ns nam-end-wireless $val(stop)"
 $ns at $val(stop) "finish"
 $ns at $val(stop) "puts \"done\" ; $ns halt"

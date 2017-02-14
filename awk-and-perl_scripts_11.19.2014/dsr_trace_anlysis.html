@@ -1,0 +1,363 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+
+  
+      
+  
+  
+  
+  <title>dsr_trace_anlysis</title>
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+</head>
+
+
+<body>
+
+
+ 
+<h2>Routing Performance Analysis</h2>
+
+
+ <br>
+
+
+ [ <a href="#DSR_routing_trace_format:">Trace</a>&nbsp; | <a href="#1._Routing_Overhead">Routing Overhead</a> | <a href="#2._Packet_delivery_ratio:">Packet Delivery Ratio</a> | <a href="#3._Average_Hop_Counts__Path_length">Route Length</a> | Back to <a href="network_simulator_2.html"><span style="font-style: italic;">Network Simulator 2 for Wireless</span></a> ]<br>
+
+
+ 
+<hr size="2" width="100%">
+<h3><a name="DSR_routing_trace_format:"></a>A Typical DSR routing
+trace format:</h3>
+
+
+ <br>
+
+
+ <b>s 606.210364161 _39_ RTR&nbsp; --- 1306 DSR 44 [13a a 27 800] ------- 
+[39:255 8:255 255 8] 2 [0 0] [0 0 0 0-&gt;0] [1 1 8 39-&gt;10]</b><br>
+
+
+ &nbsp; <br>
+
+
+ <b>s</b>: means send<br>
+
+
+ <b>606.210364161</b>: time stamp<br>
+
+
+ <b>_39_</b>: &nbsp;node id<br>
+
+
+ <b>RTR</b>: means router message<br>
+
+
+ <b>1306</b>: uid of this packet<br>
+
+
+ <b>DSR</b>: DSR agent<br>
+
+
+ <b>44</b>: size in the common header hdr_cmn()<br>
+
+
+ <b>[13a a 27 800]</b> MAC detail: &nbsp;13a: means the expected transmission 
+time ( note that packet size is large, 44 bytes, 314second?)<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;a: means the receiving node: 10<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;27: means the sending node is 39<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;800: &nbsp;IP header: 0x0800, (ETHERTYPE_ARP is 0x0806)<br>
+
+
+ <b>[39:255 8:255 255 8] </b>IP detail: src address: IP 39 means 0.0.0.39<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; port 255<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; dst address: IP 8 means 0.0.0.8<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; port 255<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; TTL: 255<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; Next-hop: 8<br>
+
+
+ <b>2 [0 0] [0 0 0 0-&gt;0] [1 1 8 39-&gt;10]</b> DSR detail:<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;2: &nbsp;num_addrs()<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;[0 0] route-request option, this is not a route 
+request, the second 0 is labeled for sequence number<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;[0 0 0 0-&gt;0] &nbsp; &nbsp;route-reply option: 
+[ " route-reply?" "Rreq seqno" "reply length" "dst of src &nbsp;route", "src 
+of the src route"]<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;[1 1 8 39-&gt;10], 1: shows this is a route error<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 1: number of route errors<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 8: tp notify node 8.<br>
+
+
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 39-&gt;10: link 39-10 is broken&nbsp; <br>
+
+
+<h3><b><a name="1._Routing_Overhead"></a>&nbsp;Routing Overhead</b></h3>
+
+
+ 
+ How to define Routing Overhead? If all the routing packets no matter broadcasting or unicasting per -hop 
+should be count once. There are some options:<br>
+
+
+ 
+<ol>
+
+
+   <li>The total number of routing packets, counted once per hop</li>
+
+
+   <li>The total number of routing bytes, counted once per hop</li>
+
+
+   <li>The # of routing packets, count with sequence number, this means end-to-end, 
+not calculated by &nbsp;per-hop basis.<br>
+
+
+   </li>
+
+
+ 
+</ol>
+
+
+ To calculate the number of DSR packets in method 1<br>
+
+
+ 
+<pre>$ cat out.tr | grep "DSR" | wc -l<br></pre>
+
+
+ The result is 3301 dsr packets for a 1000 seconds, 50 nodes 10 connections, 
+4pkt/sec, 512B size, 670X670 area, mobility speed is at most 20m/s and the 
+average pause time is 600 seconds.<br>
+
+
+ However, this is not true. because both send and recv are included. 
+<pre>$cat out.tr |grep "^s.*DSR" | wc -l</pre>
+
+
+ shows only 514 DSR packets are sending.<br>
+
+
+ <br>
+
+
+ Finally, use this awk code to count how many bytes are used.<br>
+
+
+ <br>
+
+
+ 
+<pre><font color="#cc6600">BEGIN {pktno = 0; byte = 0;}<br> $1~/s/ &amp;&amp; /DSR/&nbsp; { pktno ++<br>                   &nbsp;byte+=$8 }</font><font color="#cc6600"><br> </font><font color="#cc6600"></font></pre>
+
+
+ <br>
+
+
+ It shows "544 27016". So only 544 packets and 27016 bytes sent.<br>
+
+
+ <br>
+
+
+ With this method, the packet is only count once. But this may be wrong in 
+some sense, because any forwarding packets are not calculate as overhead. 
+The new awkcode should be:<br>
+
+
+ <br>
+
+
+ 
+<pre><font color="#cc6600">BEGIN {pktno = 0; byte = 0;}<br> $1~/s/ &amp;&amp; /DSR/&nbsp; { pktno ++<br>                   &nbsp;byte+=$8 }</font><font color="#cc6600"><br> $1~/f/ &amp;&amp; /DSR/&nbsp; { pktno ++<br>                   &nbsp;byte+=$8 }</font><br><font color="#cc6600">&nbsp;END {  print ( pktno, byte) }</font></pre>
+
+
+ This shows: "806 packets&nbsp; 43696 bytes". Because, the concern is the 
+time spent to send routing signaling, this is more accurate way to measure 
+routing overhead.<br>
+
+
+ <i><b><font color="#ff0000">However, all of the above methods are not fair to compare.</font></b></i><br>
+
+
+<br>
+
+
+The way to count MAC transmissions is the only correct way to do that.<br>
+
+
+How many MAC packets are sent for routing purpose and how many MAC packets
+are sent for traffic.<br>
+
+
+<br>
+
+
+<pre><font color="#cc6600">BEGIN {dsrpktno = 0; dsrbyte = 0; cbrpktno = 0; cbrbyte = 0; }<br> $1~/s/ &amp;&amp; /DSR/ &amp;&amp; /MAC/&nbsp; { dsrpktno ++ ;<br>                   &nbsp;dsrbyte+=$8 ;}</font><font color="#cc6600"><br> $1~/s/ &amp;&amp; /cbr/&nbsp;&amp;&amp; /MAC/ { cbrpktno ++ ;<br>                   &nbsp;cbrbyte+=$8; }</font><br><font color="#cc6600">&nbsp;END {  print ( dsrpktno, dsrbyte , cbrpktno, cbrbyte) }</font></pre>
+
+
+<br>
+
+
+ The result show 787 DSR MAC packets totaled as 83568 Bytes, but with data
+traffic as&nbsp; 4806 MAC packets of&nbsp; 2873836 Bytes.<br>
+
+
+<br>
+
+
+Note that the scene used in this scenario (/mobility/scene/cbr-50-10-4-512
+and scen-670-670....-1 ) has very short path, all connection are just one
+or 2 hops, and it is still to see that the routing overhead is huge in packet
+number comparison as (787/ (787+4806) = &nbsp;14.07% )
+<p>Another definition is "<b>Normalized 
+Routing Overhead</b>".</p>
+
+
+<font face="Times New Roman" size="3">
+<p align="left"><font face="Arial" size="2">Normalized routing load is </font>
+the number of routing packets transmitted per data packet sent to the 
+destination. Also each forwarded packet is counted as one transmission. This 
+metric is also highly correlated with the number of route changes occurred in 
+the simulation. </p>
+
+
+<p align="left">The Perl script to calculate this is ( thanks to Umut Akyol )</p>
+
+
+</font>
+<pre> <font color="#cc0000">#!/usr/bin/perl<br><br>$src = out7;<br><br>my $rte_overhead = 0;<br>my $num_rte_pkt = 0;<br>my $num_data_pkt = 0;<br><br>open(INPUTFILE,$src) || die "Cannot open file\n";<br><br>$line = &lt;INPUTFILE&gt;;<br><br>while ($line ne "") {<br><br>@input = split(/ /,$line);<br><br>if ($input[0] =~ m/s/ &amp;&amp; $input[3] =~ m/RTR/ &amp;&amp; $input[7] =~ m/AODV/) {<br>#print "A routing packet was sent\n";<br>$num_rte_pkt = $num_rte_pkt + 1;<br>}<br><br>if ($input[0] =~ m/f/ &amp;&amp; $input[3] =~ m/RTR/ &amp;&amp; $input[7] =~ m/AODV/) {<br>#print "A routing packet was forwarded\n";<br>$num_rte_pkt = $num_rte_pkt + 1;<br>}<br><br>if ($input[0] =~ m/s/ &amp;&amp; $input[3] =~ m/RTR/ &amp;&amp; $input[7] =~ m/cbr/) {<br>#print "A data packet was sent\n";<br>$num_data_pkt = $num_data_pkt + 1;<br>}<br><br>if ($input[0] =~ m/f/ &amp;&amp; $input[3] =~ m/RTR/ &amp;&amp; $input[7] =~ m/cbr/) {<br>#print "A data packet was forwarded\n";<br>$num_data_pkt = $num_data_pkt + 1;<br>}<br><br>$line = &lt;INPUTFILE&gt;;<br><br>}<br>close(INPUTFILE);<br><br>if ($num_data_pkt == 0) {<br>print "No data sent!\n";<br>} else {<br>print "Routing overhead is ", $num_rte_pkt/$num_data_pkt, "\n";<br>}<br></font></pre>
+
+
+<p>Note that to calculate DATA packets we can both in layer 2 ("MAC") or layer 3 
+(RTR) from trace file. But if there are some cut-through or fast forward 
+happened in the layer 2, the packet does not go to layer 3. Using RTR will yield 
+wrong statistics.</p>
+
+
+<h3><a name="2._Packet_delivery_ratio:"></a><b> Packet delivery ratio</b><br>
+
+</h3>
+
+<p>
+ &nbsp;The following <span style="font-style: italic; font-weight: bold;">AWK</span> code to get all sending and receiving in Agent level is&nbsp; </p>
+
+
+ 
+<pre><font color="#cc6600">BEGIN {counter1 = 0; counter2 = 0;}<br> $1~/s/ &amp;&amp; /AGT/&nbsp; { counter1 ++ }<br> $1~/r/ &amp;&amp; /AGT/&nbsp; { counter2 ++ }<br>&nbsp;END {  print ( counter1, counter2) }</font><br><br></pre>
+
+
+  Then execute<br>
+
+
+   
+<pre>$awk -f awkcode1 out.tr</pre>
+
+
+  it shows &nbsp;2236 2213. Thus, most packets are received. <br>
+
+
+ This is calculated as the total number of packets sent by AGT and received 
+by AGT.<br>
+
+
+ <br>
+
+
+ 2213/2236 = 98.97%<br>
+
+
+<br>
+
+
+<h3><b><a name="3._Average_Hop_Counts__Path_length"></a> Average Hop Counts ( Path length)</b></h3>
+
+
+
+Instead of getting some information from DSR header about path length, we
+can use a method independent of Routing protocol ( DSDV, DSR, AODV). this
+is to use the number of MAC transmission divided by Agent layer transmission.<br>
+
+
+So, for above simulation, the avg hop count is :<br>
+
+
+<br>
+
+
+<b><font color="#3333ff">4806/2236= 2.14</font></b><br>
+
+
+ 
+<pre><br><br></pre>
+
+
+ <br>
+
+
+</body>
+</html>
