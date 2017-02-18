@@ -41,11 +41,12 @@ set chan [new $val(chan)];#Create wireless channel
 
 #Record Data for Xgraph
 set f0 [open graph0.tr w]
-set f1 [open graph1.tr w]
+#set f1 [open graph1.tr w]
 
 #===================================
 #     Mobile node parameter setup
 #===================================
+$val(mac) set dataRate_ 1.0e6
 $ns node-config -adhocRouting  $val(rp) \
                 -llType        $val(ll) \
                 -macType       $val(mac) \
@@ -64,12 +65,7 @@ $ns node-config -adhocRouting  $val(rp) \
 #===================================
 #        Nodes Definition        
 #===================================
-#Create 5 nodes
-# set n0 [$ns node]
-# $n0 set X_ 700
-# $n0 set Y_ 450
-# $n0 set Z_ 0.0
-# $ns initial_node_pos $n0 20
+#Create 4 nodes
 set n1 [$ns node]
 $n1 set X_ 300
 $n1 set Y_ 600
@@ -95,11 +91,13 @@ $ns initial_node_pos $n4 20
 #        Agents Definition        
 #===================================
 proc getRandomPacketSize {} {
+    #Between 500 and 5000
     return [expr {500 + int(rand() * 4500)}]
 }
 
 proc getRandomPacketInterval {} {
-    return [expr {0.005 + int(rand() * 0.5)}]
+    #Between 0.005 and 0.505
+    return [expr {0.005 + rand() * 0.5}]
 }
 
 #Setup a TCP connection
@@ -108,57 +106,87 @@ $ns attach-agent $n1 $tcp0
 set sink2 [new Agent/TCPSink]
 $ns attach-agent $n2 $sink2
 $ns connect $tcp0 $sink2
-$tcp0 set packetSize_ [getRandomPacketSize]
-$tcp0 set interval_ [getRandomPacketInterval]
+$tcp0 set packetSize_ 1500
+$tcp0 set interval_ 0.25
 
 #Setup a TCP connection
-set tcp1 [new Agent/TCP]
-$ns attach-agent $n3 $tcp1
-set sink3 [new Agent/TCPSink]
-$ns attach-agent $n4 $sink3
-$ns connect $tcp1 $sink3
-$tcp1 set packetSize_ 1500
-
+# set tcp1 [new Agent/TCP]
+# $ns attach-agent $n3 $tcp1
+# set sink3 [new Agent/TCPSink]
+# $ns attach-agent $n4 $sink3
+# $ns connect $tcp1 $sink3
+# $tcp1 set packetSize_ 1500
+# $tcp1 set interal_ 0.40
 
 #===================================
 #        Applications Definition        
 #===================================
 #Setup a FTP Application over TCP connection
+#with random packet sizes and intervals
+#at each second
 set ftp0 [new Application/FTP]
 $ftp0 attach-agent $tcp0
-$ns at 0.5 "$ftp0 start"
+$ns at 1.0 "$ftp0 start"
 set size [getRandomPacketSize]
-puts $size
-$ns at 1.0 "$tcp0 set packetSize_ $size"
-set size [getRandomPacketSize]
-puts $size
+set interval [getRandomPacketInterval]
+puts "packet size changed to: $size"
+puts "interval changed to: $interval"
 $ns at 2.0 "$tcp0 set packetSize_ $size"
+$ns at 2.0 "$tcp0 set interval_ $interval"
 set size [getRandomPacketSize]
-puts $size
+set interval [getRandomPacketInterval]
+puts "packet size changed to: $size"
+puts "interval changed to: $interval"
 $ns at 3.0 "$tcp0 set packetSize_ $size"
+$ns at 2.0 "$tcp0 set interval_ $interval"
+set size [getRandomPacketSize]
+set interval [getRandomPacketInterval]
+puts "packet size changed to: $size"
+puts "interval changed to: $interval"
+$ns at 4.0 "$tcp0 set packetSize_ $size"
+$ns at 2.0 "$tcp0 set interval_ $interval"
+set size [getRandomPacketSize]
+set interval [getRandomPacketInterval]
+puts "packet size changed to: $size"
+puts "interval changed to: $interval"
+$ns at 5.0 "$tcp0 set packetSize_ $size"
+$ns at 2.0 "$tcp0 set interval_ $interval"
+set size [getRandomPacketSize]
+set interval [getRandomPacketInterval]
+puts "packet size changed to: $size"
+puts "interval changed to: $interval"
+$ns at 6.0 "$tcp0 set packetSize_ $size"
+$ns at 2.0 "$tcp0 set interval_ $interval"
+set size [getRandomPacketSize]
+set interval [getRandomPacketInterval]
+puts "packet size changed to: $size"
+puts "interval changed to: $interval"
+$ns at 7.0 "$tcp0 set packetSize_ $size"
+$ns at 2.0 "$tcp0 set interval_ $interval"
 $ns at 8.0 "$ftp0 stop"
 
 #Setup a FTP Application over TCP connection
-set ftp1 [new Application/FTP]
-$ftp1 attach-agent $tcp1
-$ns at 2.0 "$ftp1 start"
-$ns at 9.0 "$ftp1 stop"
+# set ftp1 [new Application/FTP]
+# $ftp1 attach-agent $tcp1
+# $ns at 2.0 "$ftp1 start"
+# $ns at 9.0 "$ftp1 stop"
 
 
 #===================================
 #        Termination        
 #===================================
 proc record {} {
-    global sink2 sink3 f0 f1
+    global sink2 f0 f1
     set ns [Simulator instance]
     set time 0.5
     set bw0 [$sink2 set bytes_]
-    set bw1 [$sink3 set bytes_]
+    #set bw1 [$sink3 set bytes_]
     set now [$ns now]
+    # Y-Axis to show Kbps
     puts $f0 "$now [expr $bw0/$time*8/1000000]"
-    puts $f1 "$now [expr $bw1/$time*8/1000000]"
+    # puts $f1 "$now [expr $bw1/$time*8/1000000]"
     $sink2 set bytes_ 0
-    $sink3 set bytes_ 0
+    # $sink3 set bytes_ 0
     $ns at [expr $now+$time] "record"
 }
 
@@ -169,8 +197,7 @@ proc finish {} {
     close $tracefile
     close $namfile
     close $f0
-    close $f1
-    exec nam out.nam &
+    #close $f1
     exit 0
 }
 for {set i 1} {$i < $val(nn) } { incr i } {
