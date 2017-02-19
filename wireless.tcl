@@ -130,8 +130,8 @@ $ns at 8.0 "$ftp0 stop"
 #Setup a FTP Application over TCP connection
 set ftp1 [new Application/FTP]
 $ftp1 attach-agent $tcp1
-$ns at 1.0 "$ftp1 start"
-$ns at 8.0 "$ftp1 stop"
+$ns at 2.0 "$ftp1 start"
+$ns at 9.0 "$ftp1 stop"
 
 
 #===================================
