@@ -5,18 +5,18 @@
 #     Simulation parameters setup
 #===================================
 set val(chan)   Channel/WirelessChannel    ;# channel type
-set val(prop)   Propagation/TwoRayGround   ;# radio-propagation model
+set val(prop)   Propagation/FreeSpace      ;# radio-propagation model
 set val(netif)  Phy/WirelessPhy            ;# network interface type
 set val(mac)    Mac/802_11                 ;# MAC type
 set val(ifq)    Queue/DropTail/PriQueue    ;# interface queue type
 set val(ll)     LL                         ;# link layer type
 set val(ant)    Antenna/OmniAntenna        ;# antenna model
 set val(ifqlen) 50                         ;# max packet in ifq
-set val(nn)     5                          ;# number of mobilenodes
-set val(rp)     AODV                       ;# routing protocol
-set val(x)      987                      ;# X dimension of topography
-set val(y)      675                      ;# Y dimension of topography
-set val(stop)   11.0                         ;# time of simulation end
+set val(nn)     3                          ;# number of mobilenodes
+set val(rp)     DSDV                       ;# routing protocol
+set val(x)      1000                       ;# X dimension of topography
+set val(y)      1000                       ;# Y dimension of topography
+set val(stop)   150.0                      ;# time of simulation end
 
 #===================================
 #        Initialization        
@@ -47,7 +47,11 @@ set f1 [open graph1.tr w]
 #     Mobile node parameter setup
 #===================================
 # Set Data Rate. Default at 1Mb/sec
-$val(mac) set dataRate_ 1.0e6
+$val(mac) set dataRate_ 54.0e6
+
+#$val(netif) set RXThresh_ 3.65262e-10
+$val(netif) set Pt_ 0.0005
+
 $ns node-config -adhocRouting  $val(rp) \
                 -llType        $val(ll) \
                 -macType       $val(mac) \
@@ -66,27 +70,22 @@ $ns node-config -adhocRouting  $val(rp) \
 #===================================
 #        Nodes Definition        
 #===================================
-#Create 4 nodes
+#Create 3 nodes
+set n0 [$ns node]
+$n0 set X_ 300
+$n0 set Y_ 600
+$n0 set Z_ 0.0
+$ns initial_node_pos $n0 20
 set n1 [$ns node]
-$n1 set X_ 300
+$n1 set X_ 250
 $n1 set Y_ 600
 $n1 set Z_ 0.0
 $ns initial_node_pos $n1 20
 set n2 [$ns node]
-$n2 set X_ 300
-$n2 set Y_ 400
+$n2 set X_ 325
+$n2 set Y_ 600
 $n2 set Z_ 0.0
 $ns initial_node_pos $n2 20
-set n3 [$ns node]
-$n3 set X_ 2300
-$n3 set Y_ 400
-$n3 set Z_ 0.0
-$ns initial_node_pos $n3 20
-set n4 [$ns node]
-$n4 set X_ 2300
-$n4 set Y_ 600
-$n4 set Z_ 0.0
-$ns initial_node_pos $n4 20
 
 #===================================
 #        Agents Definition        
@@ -96,70 +95,69 @@ proc getRandomPacketSize {} {
     return [expr {500 + int(rand() * 4500)}]
 }
 
-#Setup a TCP connection
-set tcp0 [new Agent/TCP]
-$ns attach-agent $n1 $tcp0
-set sink2 [new Agent/TCPSink]
-$ns attach-agent $n2 $sink2
-$ns connect $tcp0 $sink2
-$tcp0 set packetSize_ 1500
-
-#Setup a TCP connection
+#Setup TCP connections
 set tcp1 [new Agent/TCP]
-$ns attach-agent $n3 $tcp1
-set sink3 [new Agent/TCPSink]
-$ns attach-agent $n4 $sink3
-$ns connect $tcp1 $sink3
-$tcp1 set packetSize_ 1500
+$ns attach-agent $n1 $tcp1
+
+set tcp2 [new Agent/TCP]
+$ns attach-agent $n2 $tcp2
+
+set sink1 [new Agent/TCPSink]
+$ns attach-agent $n0 $sink1
+
+set sink2 [new Agent/TCPSink]
+$ns attach-agent $n0 $sink2
+
+$ns connect $tcp1 $sink1
+$ns connect $tcp2 $sink2
 
 #===================================
 #        Applications Definition        
 #===================================
 #Setup a FTP Application over TCP connection
 #with random packet sizes at each second
-set ftp0 [new Application/FTP]
-$ftp0 attach-agent $tcp0
-$ns at 1.0 "$ftp0 start"
-for {set i 2}  {$i < 8} {incr i} {
-    set size [getRandomPacketSize]
-    puts "at time $i.0 sec, packet size changed to: $size"
-    $ns at $i.0 "$tcp0 set packetSize_ $size"
-}
-$ns at 8.0 "$ftp0 stop"
-
-#Setup a FTP Application over TCP connection
 set ftp1 [new Application/FTP]
 $ftp1 attach-agent $tcp1
-$ns at 2.0 "$ftp1 start"
-$ns at 9.0 "$ftp1 stop"
+$ns at 1.0 "$ftp1 start"
+for {set i 2}  {$i < 145} {incr i} {
+    set size [getRandomPacketSize]
+    puts "at time $i.0 sec, packet size changed to: $size"
+    $ns at $i.0 "$tcp1 set packetSize_ $size"
+}
+$ns at 145.0 "$ftp1 stop"
+
+#Setup a FTP Application over TCP connection
+set ftp2 [new Application/FTP]
+$ftp2 attach-agent $tcp2
+$ns at 1.0 "$ftp2 start"
+$ns at 145.0 "$ftp2 stop"
 
 
 #===================================
 #        Termination        
 #===================================
 proc record {} {
-    global sink2 sink3 f0 f1
+    global sink1 sink2 f0 f1
     set ns [Simulator instance]
     set time 0.25
-    set bw0 [$sink2 set bytes_]
-    set bw1 [$sink3 set bytes_]
+    set bw0 [$sink1 set bytes_]
+    set bw1 [$sink2 set bytes_]
     set now [$ns now]
     # Y-Axis to show Kbps
     puts $f0 "$now [expr $bw0/$time*8/1000]"
     puts $f1 "$now [expr $bw1/$time*8/1000]"
+    $sink1 set bytes_ 0
     $sink2 set bytes_ 0
-    $sink3 set bytes_ 0
     $ns at [expr $now+$time] "record"
 }
 
 #Define a 'finish' procedure
 proc finish {} {
-    global ns tracefile namfile f0 f1
+    global ns tracefile namfile f0
     $ns flush-trace
     close $tracefile
     close $namfile
-    #close $f0
-    close $f1
+    close $f0
     exit 0
 }
 for {set i 1} {$i < $val(nn) } { incr i } {
