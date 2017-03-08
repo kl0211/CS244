@@ -99,7 +99,7 @@ $n3 set Z_ 0.0
 $ns initial_node_pos $n3 20
 set n4 [$ns node]
 $n4 set X_ 300
-$n4 set Y_ 943
+$n4 set Y_ 940
 $n4 set Z_ 0.0
 $ns initial_node_pos $n4 20
 
