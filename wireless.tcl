@@ -53,7 +53,7 @@ set f4 [open graph4.tr w]
 $val(mac) set dataRate_ 54.0e6
 
 #$val(netif) set RXThresh_ 3.65262e-10
-$val(netif) set Pt_ 1.0000
+$val(netif) set Pt_ 0.9500
 
 $ns node-config -adhocRouting  $val(rp) \
                 -llType        $val(ll) \
