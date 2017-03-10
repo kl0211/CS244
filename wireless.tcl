@@ -12,7 +12,7 @@ set val(ifq)    Queue/DropTail/PriQueue    ;# interface queue type
 set val(ll)     LL                         ;# link layer type
 set val(ant)    Antenna/OmniAntenna        ;# antenna model
 set val(ifqlen) 50                         ;# max packet in ifq
-set val(nn)     5                          ;# number of mobilenodes
+set val(nn)     9                          ;# number of mobilenodes
 set val(rp)     DSDV                       ;# routing protocol
 set val(x)      1000                       ;# X dimension of topography
 set val(y)      1000                       ;# Y dimension of topography
@@ -53,7 +53,7 @@ set f4 [open graph4.tr w]
 $val(mac) set dataRate_ 54.0e6
 
 #$val(netif) set RXThresh_ 3.65262e-10
-$val(netif) set Pt_ 1.000
+$val(netif) set Pt_ 1.0000
 
 $ns node-config -adhocRouting  $val(rp) \
                 -llType        $val(ll) \
@@ -88,20 +88,40 @@ $n1 set Y_ 600
 $n1 set Z_ 0.0
 $ns initial_node_pos $n1 20
 set n2 [$ns node]
-$n2 set X_ 250
-$n2 set Y_ 600
+$n2 set X_ 300
+$n2 set Y_ 625
 $n2 set Z_ 0.0
 $ns initial_node_pos $n2 20
 set n3 [$ns node]
-$n3 set X_ 300
-$n3 set Y_ 525
+$n3 set X_ 250
+$n3 set Y_ 600
 $n3 set Z_ 0.0
 $ns initial_node_pos $n3 20
 set n4 [$ns node]
 $n4 set X_ 300
-$n4 set Y_ 940
+$n4 set Y_ 525
 $n4 set Z_ 0.0
 $ns initial_node_pos $n4 20
+set n5 [$ns node]
+$n5 set X_ 400
+$n5 set Y_ 600
+$n5 set Z_ 0.0
+$ns initial_node_pos $n5 20
+set n6 [$ns node]
+$n6 set X_ 300
+$n6 set Y_ 750
+$n6 set Z_ 0.0
+$ns initial_node_pos $n6 20
+set n7 [$ns node]
+$n7 set X_ 150
+$n7 set Y_ 600
+$n7 set Z_ 0.0
+$ns initial_node_pos $n7 20
+set n8 [$ns node]
+$n8 set X_ 300
+$n8 set Y_ 260
+$n8 set Z_ 0.0
+$ns initial_node_pos $n8 20
 
 #===================================
 #        Agents Definition        
@@ -119,6 +139,10 @@ $ns attach-agent $n1 $tcp1
 $ns attach-agent $n2 $tcp2
 $ns attach-agent $n3 $tcp3
 $ns attach-agent $n4 $tcp4
+$ns attach-agent $n5 $tcp5
+$ns attach-agent $n6 $tcp6
+$ns attach-agent $n7 $tcp7
+$ns attach-agent $n8 $tcp8
 
 for {set i 1} {$i <= $val(nn)} {incr i} {
     set sink$i [new Agent/TCPSink]
@@ -127,11 +151,19 @@ $ns attach-agent $n0 $sink1
 $ns attach-agent $n0 $sink2
 $ns attach-agent $n0 $sink3
 $ns attach-agent $n0 $sink4
+$ns attach-agent $n0 $sink5
+$ns attach-agent $n0 $sink6
+$ns attach-agent $n0 $sink7
+$ns attach-agent $n0 $sink8
 
 $ns connect $tcp1 $sink1
 $ns connect $tcp2 $sink2
 $ns connect $tcp3 $sink3
 $ns connect $tcp4 $sink4
+$ns connect $tcp5 $sink5
+$ns connect $tcp6 $sink6
+$ns connect $tcp7 $sink7
+$ns connect $tcp8 $sink8
 
 #===================================
 #        Applications Definition        
@@ -146,11 +178,15 @@ $ftp1 attach-agent $tcp1
 $ftp2 attach-agent $tcp2
 $ftp3 attach-agent $tcp3
 $ftp4 attach-agent $tcp4
+$ftp5 attach-agent $tcp5
+$ftp6 attach-agent $tcp6
+$ftp7 attach-agent $tcp7
+$ftp8 attach-agent $tcp8
 
 $ns at 1.0 "$ftp1 start"
 for {set i 2}  {$i < 145} {incr i} {
     set size [getRandomPacketSize]
-    puts "at time $i.0 sec, packet size changed to: $size"
+    #puts "at time $i.0 sec, packet size changed to: $size"
     $ns at $i.0 "$tcp1 set packetSize_ $size"
 }
 $ns at 145.0 "$ftp1 stop"
@@ -158,16 +194,36 @@ $ns at 145.0 "$ftp1 stop"
 $ns at 1.0 "$ftp3 start"
 for {set i 2}  {$i < 145} {incr i} {
     set size [getRandomPacketSize]
-    puts "at time $i.0 sec, packet size changed to: $size"
+    #puts "at time $i.0 sec, packet size changed to: $size"
     $ns at $i.0 "$tcp3 set packetSize_ $size"
 }
 $ns at 145.0 "$ftp3 stop"
+
+$ns at 1.0 "$ftp5 start"
+for {set i 2}  {$i < 145} {incr i} {
+    set size [getRandomPacketSize]
+    #puts "at time $i.0 sec, packet size changed to: $size"
+    $ns at $i.0 "$tcp5 set packetSize_ $size"
+}
+$ns at 145.0 "$ftp5 stop"
+
+$ns at 1.0 "$ftp7 start"
+for {set i 2}  {$i < 145} {incr i} {
+    set size [getRandomPacketSize]
+    #puts "at time $i.0 sec, packet size changed to: $size"
+    $ns at $i.0 "$tcp7 set packetSize_ $size"
+}
+$ns at 145.0 "$ftp7 stop"
 
 #Setup a FTP Application over TCP connection
 $ns at 1.0 "$ftp2 start"
 $ns at 145.0 "$ftp2 stop"
 $ns at 1.0 "$ftp4 start"
 $ns at 145.0 "$ftp4 stop"
+$ns at 1.0 "$ftp6 start"
+$ns at 145.0 "$ftp6 stop"
+$ns at 1.0 "$ftp8 start"
+$ns at 145.0 "$ftp8 stop"
 
 #===================================
 #        Termination        
