@@ -50,10 +50,10 @@ set f4 [open graph4.tr w]
 #     Mobile node parameter setup
 #===================================
 # Set Data Rate. Default at 1Mb/sec
-$val(mac) set dataRate_ 54.0e6
+$val(mac) set dataRate_ 54.0e6 ;# dataRate_ value in bits/sec
 
-#$val(netif) set RXThresh_ 3.65262e-10
-$val(netif) set Pt_ 0.9500
+# Set Transmission Power. Standard for 802.11g is 100 mW
+$val(netif) set Pt_ 0.0025 ;# Pt_ value in watts
 
 $ns node-config -adhocRouting  $val(rp) \
                 -llType        $val(ll) \
@@ -75,8 +75,7 @@ $ns node-config -adhocRouting  $val(rp) \
 #===================================
 #Create 5 nodes
 
-#Base station
-set n0 [$ns node]
+set n0 [$ns node] ;#Base station
 $n0 set X_ 300
 $n0 set Y_ 600
 $n0 set Z_ 0.0
