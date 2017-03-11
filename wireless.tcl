@@ -5,7 +5,12 @@
 #     Simulation parameters setup
 #===================================
 set val(chan)   Channel/WirelessChannel    ;# channel type
-set val(prop)   Propagation/TwoRayGround   ;# radio-propagation model
+
+set val(prop)   Propagation/TwoRayGround   ;# radio-propagation model.
+# TwoRayGround considers ground reflection in the transmission.
+# More accurate than FreeSpace model, and is used commonly in other
+# scripts.
+
 set val(netif)  Phy/WirelessPhy            ;# network interface type
 set val(mac)    Mac/802_11                 ;# MAC type
 set val(ifq)    Queue/DropTail/PriQueue    ;# interface queue type
@@ -81,42 +86,42 @@ $n0 set Y_ 600
 $n0 set Z_ 0.0
 $ns initial_node_pos $n0 20
 
-set n1 [$ns node]
+set n1 [$ns node] ;#25 meters east
 $n1 set X_ 325
 $n1 set Y_ 600
 $n1 set Z_ 0.0
 $ns initial_node_pos $n1 20
-set n2 [$ns node]
+set n2 [$ns node] ;#25 meters north
 $n2 set X_ 300
 $n2 set Y_ 625
 $n2 set Z_ 0.0
 $ns initial_node_pos $n2 20
-set n3 [$ns node]
+set n3 [$ns node] ;#50 meters west
 $n3 set X_ 250
 $n3 set Y_ 600
 $n3 set Z_ 0.0
 $ns initial_node_pos $n3 20
-set n4 [$ns node]
+set n4 [$ns node] ;#75 meters south
 $n4 set X_ 300
 $n4 set Y_ 525
 $n4 set Z_ 0.0
 $ns initial_node_pos $n4 20
-set n5 [$ns node]
+set n5 [$ns node] ;#100 meters east
 $n5 set X_ 400
 $n5 set Y_ 600
 $n5 set Z_ 0.0
 $ns initial_node_pos $n5 20
-set n6 [$ns node]
+set n6 [$ns node] ;#150 meters north
 $n6 set X_ 300
 $n6 set Y_ 750
 $n6 set Z_ 0.0
 $ns initial_node_pos $n6 20
-set n7 [$ns node]
+set n7 [$ns node] ;#150 meters west
 $n7 set X_ 150
 $n7 set Y_ 600
 $n7 set Z_ 0.0
 $ns initial_node_pos $n7 20
-set n8 [$ns node]
+set n8 [$ns node] ;#340 meters south. Can be reached if Pt_ is set to 1 Watt
 $n8 set X_ 300
 $n8 set Y_ 260
 $n8 set Z_ 0.0
@@ -134,6 +139,9 @@ proc getRandomPacketSize {} {
 for {set i 1} {$i <= $val(nn)} {incr i} {
     set tcp$i [new Agent/TCP]
 }
+
+#Couldn't figure out how to put these in the for loop. $n$i doesn't seem
+#to work.
 $ns attach-agent $n1 $tcp1
 $ns attach-agent $n2 $tcp2
 $ns attach-agent $n3 $tcp3
