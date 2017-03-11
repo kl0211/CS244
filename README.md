@@ -1,39 +1,41 @@
 # CS244
-Computer Networks
+## Computer Networks
 
-Topology:
+# Topology:
 
-We have 4 nodes. There are two TCP connections between nodes 1,2 and nodes
-3,4. Node 1 sends packets to Node 2, and Node 3 sends packets to Node
-4. The 1,2 and 3,4 connections are placed far away from each other enough
-so that they should not interfere with each other. That is at least what we
-wanted. However, during testing we have noticed that the deterministic
-connection has slight variations between test runs. We attribute this to
-the wireless nodes being within sensing range, which causes the packet
-deliveries to be slightly inconsistent.
+We have 8 nodes and one 1 access point in a wireless network. Nodes 1-8
+work in a single-hop fashion and only send data to the access point.
 
-Connections:
+# Connections:
 
-Each connection works on a FTP application. The 1,2 connection initially
-sends packet sizes of 1500, but every second send a random amount between
-500 and 5000. This starts at time 1.0 second and lasts for 7 seconds.
+Each connection works on a FTP application. The odd numbered nodes
+(1,3,5,7) use random packet sizes which changes between 500 and 5000 bytes
+every second during the simulation. Even nodes (2,4,6,8) use the default
+packet size of 1500 for the entire simulation. The simulation time is 150
+seconds.
 
-The 3,4 connection is always sending packet sizes of 1500 for 7 seconds
-from 1.0 second to 8.0 seconds.
-
-
-Factors for throughput and delay:
+# Factors for throughput and delay:
 
 There are several factors which affect throughput and delay including:
 - packet size
 - distance
 - link rate
 - Wireless technology
+- Transmission Power
 
-We chose for this assignment to keep the distance fixed. We kept the link
-rate constant at 1 Mbit/sec while plotting data for throughput and
-delay. When plotting the link rate vs delay, we kept the packet size
-constant at 1500 bytes and tested rates of 1, 2, 5.5, 11 and 54
-Mbit/sec. The wireless technology was left at default (such as a, b, g,
-n). We assume that NS2 changed the technology automatically when changing
-the link rates.
+# Lessons Learned / obesrvations:
+
+- Higher transmission power enables nodes that are further away to connect
+  to an access point
+
+- As more nodes participate in exchanging packets with the access point,
+  throughput increases
+
+- However, the delay also increases as the transmission power goes up. This
+is due to the fact that as more nodes participate, the overall delay
+increases since the queueing time at the single access point will increase
+
+- Given our topology, we observed that increasing the transmission power
+above 5mW is unnecessary, given that nodes are within 50 meters. We observe
+that 5mW adequately services these nodes with an insignificant increase in
+delay.
