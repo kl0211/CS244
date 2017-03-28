@@ -19,6 +19,8 @@ set val(ant)    Antenna/OmniAntenna        ;# antenna model
 set val(ifqlen) 50                         ;# max packet in ifq
 set val(nn)     9                          ;# number of mobilenodes
 set val(rp)     DSDV                       ;# routing protocol
+# Destination-Sequenced Distance Vector
+
 set val(x)      1000                       ;# X dimension of topography
 set val(y)      1000                       ;# Y dimension of topography
 set val(stop)   150.0                      ;# time of simulation end
@@ -58,7 +60,7 @@ set f4 [open graph4.tr w]
 $val(mac) set dataRate_ 54.0e6 ;# dataRate_ value in bits/sec
 
 # Set Transmission Power. Standard for 802.11g is 100 mW
-$val(netif) set Pt_ 0.0025 ;# Pt_ value in watts
+$val(netif) set Pt_ 0.1000 ;# Pt_ value in watts
 
 $ns node-config -adhocRouting  $val(rp) \
                 -llType        $val(ll) \

@@ -32,10 +32,22 @@ There are several factors which affect throughput and delay including:
   throughput increases
 
 - However, the delay also increases as the transmission power goes up. This
-is due to the fact that as more nodes participate, the overall delay
-increases since the queueing time at the single access point will increase
+  is due to the fact that as more nodes participate, the overall delay
+  increases since the queueing time at the single access point will
+  increase up to the maximum allowed by the buffer.
+
+- There is also more contention in the wireless channel when more nodes are
+  in transmission range. This saturates the throughput and increases delay.
 
 - Given our topology, we observed that increasing the transmission power
-above 5mW is unnecessary, given that nodes are within 50 meters. We observe
-that 5mW adequately services these nodes with an insignificant increase in
-delay.
+  above 5mW is unnecessary, given that nodes are within 50 meters. We
+  observe that 5mW adequately services these nodes with an insignificant
+  increase in delay.
+
+- If there is a small amount of mobile nodes, than there is no need to
+  transmit at maximum power. If more nodes try to connect to the access
+  point, then there will be more contention, which causes less throughput
+  and higher delays. Increasing the transmission power will not solve this
+  problem. So it is best to keep the number of expected nodes small, and to
+  keep the transmission power as low as needed to service them in the
+  minimum expected range.
