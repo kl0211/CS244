@@ -1,0 +1,5 @@
+Throughput (bytes/s)	Drop Ratio	Average Delay (s)
+820967.577778	0.003116	0.022115
+
+1 -> 0:	820967.577778	0.003116	0.022115
+

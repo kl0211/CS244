@@ -15,7 +15,7 @@ set val(mac)    Mac/802_11                 ;# MAC type
 set val(ifq)    Queue/DropTail             ;# interface queue type
 set val(ll)     LL                         ;# link layer type
 set val(ant)    Antenna/OmniAntenna        ;# antenna model
-set val(ifqlen) 1                        ;# max packet in ifq (Buffer Size)
+set val(ifqlen) 21                        ;# max packet in ifq (Buffer Size)
 set val(nn)     2                          ;# number of mobilenodes
 set val(rp)     DSDV                       ;# routing protocol
 # Destination-Sequenced Distance Vector
@@ -142,11 +142,11 @@ $ns at 1.0 "$ftp1 start"
 
 $tcp1 set packetSize_ 1500 ;# Start with 1.5KB packetsize
 
-# for {set i 2}  {$i < 145} {incr i} {
-#     set size [getRandomPacketSize]
-#     #puts "at time $i.0 sec, packet size changed to: $size"
-#     $ns at $i.0 "$tcp1 set packetSize_ $size"
-# }
+for {set i 2}  {$i < 145} {incr i} {
+    set size [getRandomPacketSize]
+    #puts "at time $i.0 sec, packet size changed to: $size"
+    $ns at $i.0 "$tcp1 set packetSize_ $size"
+}
 $ns at 145.0 "$ftp1 stop"
 
 # Constant packet size
