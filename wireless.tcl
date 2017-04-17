@@ -12,11 +12,10 @@ set val(prop)   Propagation/TwoRayGround   ;# radio-propagation model.
 
 set val(netif)  Phy/WirelessPhy            ;# network interface type
 set val(mac)    Mac/802_11                 ;# MAC type
-#set val(ifq)    Queue/RED/RIO              ;# interface queue type
-set val(ifq)    Queue/DropTail             ;# Droptail queue
+set val(ifq)    Queue/DropTail/PriQueue    ;# Droptail/PriQueue queue
 set val(ll)     LL                         ;# link layer type
 set val(ant)    Antenna/OmniAntenna        ;# antenna model
-set val(ifqlen) 6                         ;# max packet in ifq (Buffer Size)
+set val(ifqlen) 9                         ;# max packet in ifq (Buffer Size)
 set val(nn)     3                          ;# number of mobilenodes
 set val(rp)     DSDV                       ;# routing protocol
 # Destination-Sequenced Distance Vector
