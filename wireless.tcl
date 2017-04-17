@@ -12,11 +12,11 @@ set val(prop)   Propagation/TwoRayGround   ;# radio-propagation model.
 
 set val(netif)  Phy/WirelessPhy            ;# network interface type
 set val(mac)    Mac/802_11                 ;# MAC type
-set val(ifq)    Queue/RED/RIO              ;# interface queue type
-#set val(ifq)    Queue/DropTail             ;# Droptail queue
+#set val(ifq)    Queue/RED/RIO              ;# interface queue type
+set val(ifq)    Queue/DropTail             ;# Droptail queue
 set val(ll)     LL                         ;# link layer type
 set val(ant)    Antenna/OmniAntenna        ;# antenna model
-set val(ifqlen) 20                         ;# max packet in ifq (Buffer Size)
+set val(ifqlen) 6                         ;# max packet in ifq (Buffer Size)
 set val(nn)     3                          ;# number of mobilenodes
 set val(rp)     DSDV                       ;# routing protocol
 # Destination-Sequenced Distance Vector
@@ -122,15 +122,19 @@ for {set i 1} {$i <= $val(nn)} {incr i} {
 
 #Couldn't figure out how to put these in the for loop. $n$i doesn't seem
 #to work.
+#Attach TCP connections to nodes
 $ns attach-agent $n1 $tcp1
 $ns attach-agent $n2 $tcp2
 
+#Setup TCP sinks
 for {set i 1} {$i <= $val(nn)} {incr i} {
     set sink$i [new Agent/TCPSink]
 }
+#Attach TCP sinks to nodes
 $ns attach-agent $n0 $sink1
 $ns attach-agent $n0 $sink2
 
+#Connect TCP connections with sinks
 $ns connect $tcp1 $sink1
 $ns connect $tcp2 $sink2
 
@@ -138,34 +142,35 @@ $ns connect $tcp2 $sink2
 #        Applications Definition        
 #===================================
 #Setup an FTP Application over TCP connection
-#with random packet sizes at each second
 for {set i 1} {$i <= $val(nn)} {incr i} {
     set ftp$i [new Application/FTP]
 }
 
+#Attach FTP applications to TCP connections
 $ftp1 attach-agent $tcp1
 $ftp2 attach-agent $tcp2
 
-# Random packet size
-$ns at 1.0 "$ftp1 start"
-
+#Set TCP connection packet sizes
 $tcp1 set packetSize_ 1500 ;# Start with 1.5KB packetsize
+$tcp2 set packetSize_ 1500
 
-for {set i 2}  {$i < 145} {incr i} {
-    set size [getRandomPacketSize]
-    #puts "at time $i.0 sec, packet size changed to: $size"
-    $ns at $i.0 "$tcp1 set packetSize_ $size"
-}
+#Start/Stop nodes times
+$ns at 1.0 "$ftp1 start"
+# Uncomment for loop below to make ftp send random packet sizes
+# for {set i 2}  {$i < 145} {incr i} {
+#     set size [getRandomPacketSize]
+#     #puts "at time $i.0 sec, packet size changed to: $size"
+#     $ns at $i.0 "$tcp1 set packetSize_ $size"
+# }
 $ns at 145.0 "$ftp1 stop"
 
-# Constant packet size
-$tcp2 set packetSize_ 1500 ;# Start with 1.5KB packetsize
 $ns at 1.0 "$ftp2 start"
-for {set i 2}  {$i < 145} {incr i} {
-    set size [getRandomPacketSize]
-    #puts "at time $i.0 sec, packet size changed to: $size"
-    $ns at $i.0 "$tcp2 set packetSize_ $size"
-}
+# Uncomment for loop below to make ftp send random packet sizes
+# for {set i 2}  {$i < 145} {incr i} {
+#     set size [getRandomPacketSize]
+#     #puts "at time $i.0 sec, packet size changed to: $size"
+#     $ns at $i.0 "$tcp2 set packetSize_ $size"
+# }
 $ns at 145.0 "$ftp2 stop"
 
 
