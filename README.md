@@ -3,51 +3,55 @@
 
 # Topology:
 
-We have 8 nodes and one 1 access point in a wireless network. Nodes 1-8
+We have 2 nodes and one 1 access point in a wireless network. Nodes 1 and 2
 work in a single-hop fashion and only send data to the access point.
 
 # Connections:
 
-Each connection works on a FTP application. The odd numbered nodes
-(1,3,5,7) use random packet sizes which changes between 500 and 5000 bytes
-every second during the simulation. Even nodes (2,4,6,8) use the default
-packet size of 1500 for the entire simulation. The simulation time is 150
-seconds.
+Each TCP connection works on an FTP application. Both connections begin
+with 1500 Byte packet sizes. We ran simulations where both use fixed packet
+sizes and others where both have a random packet size, changing each
+second. The simulation time is 150 seconds.
 
-# Factors for throughput and delay:
+# Factors for throughput and delay in regards to buffer size:
 
-There are several factors which affect throughput and delay including:
-- packet size
-- distance
-- link rate
-- Wireless technology
-- Transmission Power
+The buffer determines how many packets can remain in the queue before they
+are transmitted, If a buffer is full, no other packets can be
+added. Depending on the buffer management scheme, certain packets will be
+dropped, such as the last one entered in a DropTail scheme.
 
-# Lessons Learned / obesrvations:
+With a higher buffer size, fewer packets get dropped, but more packets will
+be waiting to be transmitted, so the delay increases. If there are fewer
+drops, more packets will arrive at their destination in less time. If there
+are buffers that are small and drops do not occur too often, there will be
+higher throughput due to less waiting time.
 
-- Higher transmission power enables nodes that are further away to connect
-  to an access point
+In our simulations, we noticed that buffer sizes of at least 20 experience
+no packet drops. As we decrease the buffer size, the throughput increases
+as well as the delay until around buffer size of around 16. Then both
+throughput and delay decrease at a linear rate until we reach a very small
+buffer size of 3. We believe that the higher delays around 16 buffer size
+occurs because of the combination of waiting time and
+re-transmissions. Smaller buffer sizes than 16 have more transmissions due
+to packet drops, but the waiting time is much less, so it would seem that
+the waiting time has a greater affect on the total delay than
+re-transmitting.
 
-- As more nodes participate in exchanging packets with the access point,
-  throughput increases
+In class, Basem explained that the decrease in delay and throughput after
+buffer size 16 was due to the link being saturated. This make sense as the
+maximum throughput is reached at 16 buffer size. Then as the buffer size is
+increased, we see less delay since there are fewer re-transmissions, which
+also causes less throughput.
 
-- However, the delay also increases as the transmission power goes up. This
-  is due to the fact that as more nodes participate, the overall delay
-  increases since the queueing time at the single access point will
-  increase up to the maximum allowed by the buffer.
+# Lessons Learned / observations:
 
-- There is also more contention in the wireless channel when more nodes are
-  in transmission range. This saturates the throughput and increases delay.
+- Smaller buffers give less delay, but with a higher drop ratio.
 
-- Given our topology, we observed that increasing the transmission power
-  above 5mW is unnecessary, given that nodes are within 50 meters. We
-  observe that 5mW adequately services these nodes with an insignificant
-  increase in delay.
-
-- If there is a small amount of mobile nodes, than there is no need to
-  transmit at maximum power. If more nodes try to connect to the access
-  point, then there will be more contention, which causes less throughput
-  and higher delays. Increasing the transmission power will not solve this
-  problem. So it is best to keep the number of expected nodes small, and to
-  keep the transmission power as low as needed to service them in the
-  minimum expected range.
+- We wanted to use other queue management solutions, however very few would
+  work, or give confusing results. For example, using JoBS throws an error
+  when trying to run. Unfortunately, we could not find any helpful
+  documentation on how to use it. We also tried using CoDel, but we kept
+  getting an compilation error. It would seem that Debian's copy of NS2
+  does not have it. Some queues would only give the same results as
+  DropTail. others would compile, but not output anything in the trace
+  file.
